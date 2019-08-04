@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class AICoordinateGetter implements ICoordinateGetter {
 
-
+    private RandomCoordinateGetter randomPoint = new RandomCoordinateGetter();
 
     private Point[] diag1 = {   new Point(0,0),
                                 new Point(1,1),
@@ -57,16 +57,55 @@ public class AICoordinateGetter implements ICoordinateGetter {
         ArrayList<Point> xs = checkXs(field);
 
         for (int k=0; k<8; k++) {
+            //System.out.println("Changing flag "+k);
             flagsChange(os, mass[k], k);
         }
 
+        for (int i=0; i<8; i++){
+            System.out.println(flags[i]);
+            //System.out.println(mass[i][0].getX()+" "+mass[i][0].getY());
+        }
+
+/*
+        for (int i=0; i<8; i++) {
+            System.out.println("mass line: "+i);
+            for (int j=0;j<3;j++) {
+                System.out.println(mass[i][j].getX()+" "+ mass[i][j].getY());
+            }
+        }
+*/
+
         for (int i=0; i<xs.size(); i++){
             for(int j=0; j<8; j++) {
+
                 if (flags[j]) {
-                    if (Arrays.asList(mass[j]).contains(xs.get(i))) {
+                    String[] massString = new String[mass[j].length];
+                    for (int l=0; l<mass[j].length; l++){
+                        massString[l] = String.valueOf(mass[j][l].getX())+String.valueOf(mass[j][l].getY());
+                    }
+                    if (Arrays.asList(massString).contains(String.valueOf(xs.get(i).getX())+String.valueOf(xs.get(i).getY()))) {
+                        System.out.println("Got here!");
+                        System.out.println("Putting X to mass["+j+"]");
+                        System.out.println("mass["+j+"] is "+massString[0]+massString[1]+massString[2]);
+
                         int randomCell = r.nextInt(3);
-                        while (field.getFigure(mass[j][randomCell]) != null) {
-                            return mass[j][randomCell];
+                        System.out.println("Random cell is "+ randomCell);
+
+                        int count = 0;
+                        while (true){
+                            if(field.getFigure(mass[j][randomCell]) == null) {
+                                System.out.println("X goes to " + mass[j][randomCell].getX() + " " + mass[j][randomCell].getY());
+                                return mass[j][randomCell];
+                            }
+                            else {
+                                r = new Random();
+                                randomCell = r.nextInt(3);
+                                System.out.println("Random cell is "+ randomCell);
+                            }
+                            count ++;
+                            if (count == 3){
+                                break;
+                            }
                         }
                     }
                 }
@@ -84,16 +123,17 @@ public class AICoordinateGetter implements ICoordinateGetter {
 
         // END
 
-        return null;
+        return randomPoint.getMoveCoordinate(field);
     }
 
     private ArrayList<Point> checkOs(Field field) {
         ArrayList<Point> res = new ArrayList<Point>();
         for (int i=0; i<field.getSize(); i++) {
             for (int j=0; j<field.getSize(); j++) {
-                Point p = new Point(i,j);
+                Point p = new Point(i, j);
                 if (field.getFigure(p) == Figure.O) {
                     res.add(p);
+                    System.out.println("O at "+ p.getX()+p.getY());
                 }
             }
         }
@@ -104,9 +144,10 @@ public class AICoordinateGetter implements ICoordinateGetter {
         ArrayList<Point> res = new ArrayList<Point>();
         for (int i=0; i<field.getSize(); i++) {
             for (int j=0; j<field.getSize(); j++) {
-                Point p = new Point(i,j);
+                Point p = new Point(i, j);
                 if (field.getFigure(p) == Figure.X) {
                     res.add(p);
+                    System.out.println("X at "+ p.getX()+p.getY());
                 }
             }
         }
@@ -116,8 +157,20 @@ public class AICoordinateGetter implements ICoordinateGetter {
 
     private void flagsChange(ArrayList<Point> os, Point[] item, int j) {
         for (int i=0; i<os.size(); i++) {
-            if (!Arrays.asList(item).contains(os.get(i))) {
-                this.flags[j] = true;
+            //System.out.println("Checking O in mass row "+ j);
+            //System.out.println(item[0].getX()+" "+item[0].getY());
+            //System.out.println(os.get(i).getX()+" "+os.get(i).getY());
+            String[] itemString = new String[item.length];
+            for (int l=0; l<item.length; l++){
+                 itemString[l] = String.valueOf(item[l].getX())+String.valueOf(item[l].getY());
+            }
+
+            if (Arrays.asList(itemString).contains(String.valueOf(os.get(i).getX())+String.valueOf(os.get(i).getY()))) {
+                flags[j] = false;
+                //System.out.println("Got O, go to false!");
+            }
+            else {
+                flags[j] = true;
             }
         }
     }
