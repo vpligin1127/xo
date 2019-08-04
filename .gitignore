@@ -3,6 +3,7 @@
 *.iws
 *.iml
 .idea/
+out/
 # Eclipse
 .classpath
 .project
