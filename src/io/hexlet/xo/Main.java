@@ -24,8 +24,9 @@ public class Main {
         for (int i = 0; i < 9; i++) {
             Thread.sleep(500);
             final Point p;
-            if (i % 2 == 0)
+            if (i % 2 == 0){
                 p = ai.getMoveCoordinate(field);
+                System.out.println("AI sets on "+p.getX()+" "+p.getY());}
             else
                 p = random.getMoveCoordinate(field);
             final Figure f = i % 2 == 0 ? Figure.X : Figure.O;

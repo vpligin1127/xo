@@ -28,7 +28,8 @@ public class ConsoleView implements ICoordinateGetter {
                 sb.append("|");
             sb.append(" ");
             final Figure figure;
-            figure = field.getFigure(new Point(y, x));
+            //Ошибка в выводе фигур!!!
+            figure = field.getFigure(new Point(x, y));
             sb.append(figure != null ? figure : " ");
             sb.append(" ");
         }
