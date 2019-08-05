@@ -57,39 +57,18 @@ public class AICoordinateGetter implements ICoordinateGetter {
         ArrayList<Point> xs = checkXs(field);
 
         for (int k=0; k<8; k++) {
-            //System.out.println("Changing flag "+k);
             flagsChange(os, mass[k], k);
         }
 
-        for (int i=0; i<8; i++){
-            System.out.println(flags[i]);
-            //System.out.println(mass[i][0].getX()+" "+mass[i][0].getY());
-        }
-
-/*
-        for (int i=0; i<8; i++) {
-            System.out.println("mass line: "+i);
-            for (int j=0;j<3;j++) {
-                System.out.println(mass[i][j].getX()+" "+ mass[i][j].getY());
-            }
-        }
-*/
 
         for (int i=0; i<xs.size(); i++){
             for(int j=0; j<8; j++) {
 
                 if (flags[j]) {
-                    String[] massString = new String[mass[j].length];
-                    for (int l=0; l<mass[j].length; l++){
-                        massString[l] = String.valueOf(mass[j][l].getX())+String.valueOf(mass[j][l].getY());
-                    }
-                    if (Arrays.asList(massString).contains(String.valueOf(xs.get(i).getX())+String.valueOf(xs.get(i).getY()))) {
+                    if (Arrays.asList(mass[j]).contains(xs.get(i))) {
                         System.out.println("Got here!");
-                        System.out.println("Putting X to mass["+j+"]");
-                        System.out.println("mass["+j+"] is "+massString[0]+massString[1]+massString[2]);
-
                         int randomCell = r.nextInt(3);
-                        System.out.println("Random cell is "+ randomCell);
+                        //System.out.println("Random cell is "+ randomCell);
 
                         int count = 0;
                         while (true){
@@ -109,18 +88,9 @@ public class AICoordinateGetter implements ICoordinateGetter {
                         }
                     }
                 }
+
             }
         }
-
-
-
-
-
-
-
-
-
-
         // END
 
         return randomPoint.getMoveCoordinate(field);
@@ -157,17 +127,8 @@ public class AICoordinateGetter implements ICoordinateGetter {
 
     private void flagsChange(ArrayList<Point> os, Point[] item, int j) {
         for (int i=0; i<os.size(); i++) {
-            //System.out.println("Checking O in mass row "+ j);
-            //System.out.println(item[0].getX()+" "+item[0].getY());
-            //System.out.println(os.get(i).getX()+" "+os.get(i).getY());
-            String[] itemString = new String[item.length];
-            for (int l=0; l<item.length; l++){
-                 itemString[l] = String.valueOf(item[l].getX())+String.valueOf(item[l].getY());
-            }
-
-            if (Arrays.asList(itemString).contains(String.valueOf(os.get(i).getX())+String.valueOf(os.get(i).getY()))) {
+            if (Arrays.asList(item).contains(os.get(i))) {
                 flags[j] = false;
-                //System.out.println("Got O, go to false!");
             }
             else {
                 flags[j] = true;
