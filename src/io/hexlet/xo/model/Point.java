@@ -18,4 +18,17 @@ public class Point {
     public int getY() {
         return y;
     }
+
+    @Override
+    public boolean equals(Object object)
+    {
+        boolean sameSame = false;
+
+        if (object != null && object instanceof Point)
+        {
+            sameSame = (this.x == ((Point) object).x && this.y == ((Point) object).y);
+        }
+
+        return sameSame;
+    }
 }
