@@ -22,13 +22,15 @@ public class Point {
     @Override
     public boolean equals(Object object)
     {
-        boolean sameSame = false;
-
-        if (object != null && object instanceof Point)
-        {
-            sameSame = (this.x == ((Point) object).x && this.y == ((Point) object).y);
+        if (this == object){
+           return true;
         }
 
-        return sameSame;
+        if (object instanceof Point)
+        {
+            return (x == ((Point) object).x && y == ((Point) object).y);
+        }
+
+        return false;
     }
 }
