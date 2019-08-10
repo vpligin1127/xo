@@ -31,7 +31,7 @@ public class Main {
                 p = random.getMoveCoordinate(field);
             final Figure f = i % 2 == 0 ? Figure.X : Figure.O;
             if (!mc.applyFigure(field, p, f)) {
-                throw new RuntimeException("looks like AI make illegal moves;)");
+                throw new RuntimeException("looks like AI makes illegal moves;)");
             }
             final Figure winner = wc.getWinner(field);
             cv.show(field);

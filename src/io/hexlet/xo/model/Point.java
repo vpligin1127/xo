@@ -18,4 +18,19 @@ public class Point {
     public int getY() {
         return y;
     }
+
+    @Override
+    public boolean equals(Object object)
+    {
+        if (this == object){
+           return true;
+        }
+
+        if (object instanceof Point)
+        {
+            return (x == ((Point) object).x && y == ((Point) object).y);
+        }
+
+        return false;
+    }
 }
