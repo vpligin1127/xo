@@ -11,7 +11,8 @@ import java.util.ArrayList;
 public class AICoordinateGetter implements ICoordinateGetter {
 
     private RandomCoordinateGetter randomPoint = new RandomCoordinateGetter();
-
+    // Формируем двумерный массив из координат линий поля. 8 строчек соответствуют по порядку:
+    // 2 диагонали, 3 строчки и 3 столбца
     private Point[] diag1 = {   new Point(0,0),
                                 new Point(1,1),
                                 new Point(2,2)};
@@ -25,7 +26,8 @@ public class AICoordinateGetter implements ICoordinateGetter {
                                 formLine(0),formLine(1),formLine(2),
                                 formRow(0),formRow(1),formRow(2)};
 
-    private boolean[] flags = new boolean[8];
+    // массив флагов, соответствующих по индексу линиям поля
+    private Figure[] flags = new Figure[8];
 
     private Point[] formRow(int i){
         Point[] res = new Point[3];
@@ -45,85 +47,71 @@ public class AICoordinateGetter implements ICoordinateGetter {
 
 
     @Override
-    public Point getMoveCoordinate(final Field field) {
+    public Point getMoveCoordinate(final Field field, Figure fSelected) {
         // BEGIN (write your solution here) (write your solution here)
-        Random r = new Random();
-        Point res;
 
+        // Первый ход в центр
+        // Выигрывает и так и так
+        /*
         if (field.isEmpty()) {
             return new Point(1, 1);
         }
+         */
+        Figure fNotSelected;
+        if (fSelected == Figure.X) {
+            fNotSelected = Figure.O;
+        }
+        else {
+            fNotSelected = Figure.X;
+        }
+
+        // Проверка ситуации, когда до выигрыша 1 ход
+        for (int i = 0; i<8; i++){
+            if (checkWin(mass[i], field, fSelected) != null && field.getFigure(checkWin(mass[i], field, fSelected)) == null){
+                return checkWin(mass[i], field, fSelected);
+            }
+        }
+
+        //Проверка ситуации, когда до проигрыша 1 ход.
+        // В таком случае экстренно мешаем выиграть противнику
+        for (int i = 0; i<8; i++){
+            if (checkWin(mass[i], field, fNotSelected) != null && field.getFigure(checkWin(mass[i], field, fNotSelected)) == null){
+                return checkWin(mass[i], field, fNotSelected);
+            }
+        }
+
+        //Списки координат крестиков и ноликов
         ArrayList<Point> os = checkOs(field);
         ArrayList<Point> xs = checkXs(field);
 
+        //Перебор линий поля. Если в линии есть нолик, её флаг - Figure.O,
+        // Если в линии есть Х, её флаг - Figure.O,
+        // Если линия пустая, её флаг - null
         for (int k=0; k<8; k++) {
-            //System.out.println("Changing flag "+k);
-            flagsChange(os, mass[k], k);
+            flagsChange(os, xs, mass[k], k);
         }
 
-        for (int i=0; i<8; i++){
-            System.out.println(flags[i]);
-            //System.out.println(mass[i][0].getX()+" "+mass[i][0].getY());
-        }
 
-/*
-        for (int i=0; i<8; i++) {
-            System.out.println("mass line: "+i);
-            for (int j=0;j<3;j++) {
-                System.out.println(mass[i][j].getX()+" "+ mass[i][j].getY());
-            }
-        }
-*/
-
-        for (int i=0; i<xs.size(); i++){
-            for(int j=0; j<8; j++) {
-
-                if (flags[j]) {
-                    String[] massString = new String[mass[j].length];
-                    for (int l=0; l<mass[j].length; l++){
-                        massString[l] = String.valueOf(mass[j][l].getX())+String.valueOf(mass[j][l].getY());
-                    }
-                    if (Arrays.asList(massString).contains(String.valueOf(xs.get(i).getX())+String.valueOf(xs.get(i).getY()))) {
-                        System.out.println("Got here!");
-                        System.out.println("Putting X to mass["+j+"]");
-                        System.out.println("mass["+j+"] is "+massString[0]+massString[1]+massString[2]);
-
-                        int randomCell = r.nextInt(3);
-                        System.out.println("Random cell is "+ randomCell);
-
-                        int count = 0;
-                        while (true){
-                            if(field.getFigure(mass[j][randomCell]) == null) {
-                                System.out.println("X goes to " + mass[j][randomCell].getX() + " " + mass[j][randomCell].getY());
-                                return mass[j][randomCell];
+        // Основная логика решения о выставлении крестика
+        //Если в какой-то из линий есть крестик, то ставим в неё. В приоритете диагонали.
+        // В пределах линии приоритет отдается клеткам, которые пересекаются с линией, в которой есть нолик.
+        for (Point i : xs){
+            for (int j=0; j<8; j++){
+                if (flags[j] == fSelected){
+                    for (int k=0; k<8; k++){
+                        if (flags[k] == fNotSelected){
+                            if (intersection(mass[j], mass[k]) != null && field.getFigure(intersection(mass[j], mass[k])) == null) {
+                                return intersection(mass[j], mass[k]);
                             }
-                            else {
-                                r = new Random();
-                                randomCell = r.nextInt(3);
-                                System.out.println("Random cell is "+ randomCell);
-                            }
-                            count ++;
-                            if (count == 3){
-                                break;
-                            }
+                            else return randomInLine(mass[j], field, fSelected);
                         }
                     }
                 }
             }
         }
 
-
-
-
-
-
-
-
-
-
+        return randomPoint.getMoveCoordinate(field, fSelected);
         // END
-
-        return randomPoint.getMoveCoordinate(field);
     }
 
     private ArrayList<Point> checkOs(Field field) {
@@ -133,7 +121,7 @@ public class AICoordinateGetter implements ICoordinateGetter {
                 Point p = new Point(i, j);
                 if (field.getFigure(p) == Figure.O) {
                     res.add(p);
-                    System.out.println("O at "+ p.getX()+p.getY());
+                    //System.out.println("O at "+ p.getX()+p.getY());
                 }
             }
         }
@@ -147,7 +135,7 @@ public class AICoordinateGetter implements ICoordinateGetter {
                 Point p = new Point(i, j);
                 if (field.getFigure(p) == Figure.X) {
                     res.add(p);
-                    System.out.println("X at "+ p.getX()+p.getY());
+                    //System.out.println("X at "+ p.getX()+p.getY());
                 }
             }
         }
@@ -155,24 +143,77 @@ public class AICoordinateGetter implements ICoordinateGetter {
     }
 
 
-    private void flagsChange(ArrayList<Point> os, Point[] item, int j) {
-        for (int i=0; i<os.size(); i++) {
-            //System.out.println("Checking O in mass row "+ j);
-            //System.out.println(item[0].getX()+" "+item[0].getY());
-            //System.out.println(os.get(i).getX()+" "+os.get(i).getY());
-            String[] itemString = new String[item.length];
-            for (int l=0; l<item.length; l++){
-                 itemString[l] = String.valueOf(item[l].getX())+String.valueOf(item[l].getY());
-            }
-
-            if (Arrays.asList(itemString).contains(String.valueOf(os.get(i).getX())+String.valueOf(os.get(i).getY()))) {
-                flags[j] = false;
-                //System.out.println("Got O, go to false!");
-            }
-            else {
-                flags[j] = true;
+    private void flagsChange(ArrayList<Point> os, ArrayList<Point> xs, Point[] item, int j) {
+        for (Point i : os) {
+            if (Arrays.asList(item).contains(i)) {
+                flags[j] = Figure.O;
             }
         }
+
+        for (Point i : xs) {
+            if (Arrays.asList(item).contains(i) && flags[j] != Figure.O) {
+                flags[j] = Figure.X;
+            }
+        }
+
+
     }
+
+    // Метод, находящий координаты ячейки, в которой пересекаются 2 линии
+    private Point intersection(Point[] lineA, Point[] lineB){
+        for (Point i : lineA){
+            for (Point j : lineB){
+                if (j.equals(i)){
+                    return j;
+                }
+            }
+        }
+        return null;
+    }
+
+    // Метод выставления крестика в одну из свободных клеток в линии. Выбирается случайно.
+    //Если выбрать не удалось, ставит на любую свободную клетку на поле.
+    private Point randomInLine(Point[] item, Field field, Figure fSel){
+        Random r = new Random();
+        int randomCell = r.nextInt(3);
+        //System.out.println("Random cell is "+ randomCell);
+
+        int count = 0;
+        while (true) {
+            if (field.getFigure(item[randomCell]) == null) {
+                //System.out.println("X goes to " + mass[j][randomCell].getX() + " " + mass[j][randomCell].getY());
+                return item[randomCell];
+            } else {
+                r = new Random();
+                randomCell = r.nextInt(3);
+                //System.out.println("Random cell is "+ randomCell);
+            }
+            count++;
+            if (count == 3) {
+                break;
+            }
+        }
+        return randomPoint.getMoveCoordinate(field, fSel);
+
+    }
+
+    // Метод, проверяющий наличие 2 одинаковых фигур в линии и возвращающий координаты свободной ячейки
+    private Point checkWin(Point[] item, Field field, Figure f){
+        int count = 0;
+        for (Point i: item){
+            if (field.getFigure(i) == f){
+                count ++;
+            }
+        }
+        if (count == 2){
+            for (Point i: item){
+                if (field.getFigure(i) == null){
+                    return i;
+                }
+            }
+        }
+        return null;
+    }
+
 
 }

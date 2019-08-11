@@ -6,7 +6,7 @@ import io.hexlet.xo.model.Point;
 
 public class ConsoleView implements ICoordinateGetter {
 
-    public Point getMoveCoordinate(final Field field) {
+    public Point getMoveCoordinate(final Field field, Figure f) {
         return new Point(0, 0);
     }
 
