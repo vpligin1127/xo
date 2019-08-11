@@ -47,7 +47,7 @@ public class AICoordinateGetter implements ICoordinateGetter {
 
 
     @Override
-    public Point getMoveCoordinate(final Field field) {
+    public Point getMoveCoordinate(final Field field, Figure fSelected) {
         // BEGIN (write your solution here) (write your solution here)
 
         // Первый ход в центр
@@ -57,19 +57,26 @@ public class AICoordinateGetter implements ICoordinateGetter {
             return new Point(1, 1);
         }
          */
+        Figure fNotSelected;
+        if (fSelected == Figure.X) {
+            fNotSelected = Figure.O;
+        }
+        else {
+            fNotSelected = Figure.X;
+        }
 
         // Проверка ситуации, когда до выигрыша 1 ход
         for (int i = 0; i<8; i++){
-            if (checkWin(mass[i], field, Figure.X) != null && field.getFigure(checkWin(mass[i], field, Figure.X)) == null){
-                return checkWin(mass[i], field, Figure.X);
+            if (checkWin(mass[i], field, fSelected) != null && field.getFigure(checkWin(mass[i], field, fSelected)) == null){
+                return checkWin(mass[i], field, fSelected);
             }
         }
 
         //Проверка ситуации, когда до проигрыша 1 ход.
         // В таком случае экстренно мешаем выиграть противнику
         for (int i = 0; i<8; i++){
-            if (checkWin(mass[i], field, Figure.O) != null && field.getFigure(checkWin(mass[i], field, Figure.O)) == null){
-                return checkWin(mass[i], field, Figure.O);
+            if (checkWin(mass[i], field, fNotSelected) != null && field.getFigure(checkWin(mass[i], field, fNotSelected)) == null){
+                return checkWin(mass[i], field, fNotSelected);
             }
         }
 
@@ -90,20 +97,20 @@ public class AICoordinateGetter implements ICoordinateGetter {
         // В пределах линии приоритет отдается клеткам, которые пересекаются с линией, в которой есть нолик.
         for (Point i : xs){
             for (int j=0; j<8; j++){
-                if (flags[j] == Figure.X){
+                if (flags[j] == fSelected){
                     for (int k=0; k<8; k++){
-                        if (flags[k] == Figure.O){
+                        if (flags[k] == fNotSelected){
                             if (intersection(mass[j], mass[k]) != null && field.getFigure(intersection(mass[j], mass[k])) == null) {
                                 return intersection(mass[j], mass[k]);
                             }
-                            else return randomInLine(mass[j], field);
+                            else return randomInLine(mass[j], field, fSelected);
                         }
                     }
                 }
             }
         }
 
-        return randomPoint.getMoveCoordinate(field);
+        return randomPoint.getMoveCoordinate(field, fSelected);
         // END
     }
 
@@ -166,7 +173,7 @@ public class AICoordinateGetter implements ICoordinateGetter {
 
     // Метод выставления крестика в одну из свободных клеток в линии. Выбирается случайно.
     //Если выбрать не удалось, ставит на любую свободную клетку на поле.
-    private Point randomInLine(Point[] item, Field field){
+    private Point randomInLine(Point[] item, Field field, Figure fSel){
         Random r = new Random();
         int randomCell = r.nextInt(3);
         //System.out.println("Random cell is "+ randomCell);
@@ -186,7 +193,7 @@ public class AICoordinateGetter implements ICoordinateGetter {
                 break;
             }
         }
-        return randomPoint.getMoveCoordinate(field);
+        return randomPoint.getMoveCoordinate(field, fSel);
 
     }
 
